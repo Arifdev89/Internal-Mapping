@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Indoor Map · Hybrid Navigator</title>
+  <link rel="stylesheet" href="{% static 'navigator/css/indoor.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="/">&larr; Outdoor map</a>
+    <h1>Indoor Map</h1>
+    <label class="sr-only" for="building-select">Building</label>
+    <select id="building-select" aria-label="Building"></select>
+  </header>
+
+  <main class="layout">
+    <aside class="panel" id="panel">
+      <section class="card route-box" aria-label="Start and destination">
+        <div class="route-row">
+          <span class="dot dot-a">A</span>
+          <div class="route-field" id="start-field">Choose a starting point</div>
+          <button type="button" class="icon-btn" id="clear-start" title="Clear start" aria-label="Clear start" hidden>&times;</button>
+        </div>
+        <div class="route-row">
+          <span class="dot dot-b">B</span>
+          <div class="route-field" id="dest-field">Choose a destination</div>
+          <button type="button" class="icon-btn" id="clear-dest" title="Clear destination" aria-label="Clear destination" hidden>&times;</button>
+        </div>
+        <div class="route-actions">
+          <button type="button" class="ghost" id="swap-btn" title="Swap start and destination">&#8645; Swap</button>
+          <label class="check"><input type="checkbox" id="accessible"> Wheelchair accessible</label>
+        </div>
+        <button type="button" class="primary" id="find-route" disabled>Find route</button>
+        <p class="note" id="route-note"></p>
+      </section>
+
+      <section class="card info" id="info" hidden aria-live="polite">
+        <div class="info-head">
+          <h2 id="info-name"></h2>
+          <span class="chip" id="info-category"></span>
+        </div>
+        <p class="info-floor" id="info-floor"></p>
+        <p class="info-desc" id="info-desc"></p>
+        <p class="warn" id="info-warn" hidden></p>
+        <p class="info-links" id="info-links"></p>
+        <div class="info-actions">
+          <button type="button" class="ghost" id="set-start">Set as start</button>
+          <button type="button" class="primary" id="set-dest">Set as destination</button>
+        </div>
+      </section>
+
+      <section class="card directory" aria-label="Places in this building">
+        <input id="q" type="search" placeholder="Search rooms and departments" autocomplete="off" aria-label="Search places">
+        <div id="directory"></div>
+      </section>
+
+      <section class="card legend" aria-label="Legend">
+        <span><i class="sw cat-department"></i>Department</span>
+        <span><i class="sw cat-ward"></i>Ward</span>
+        <span><i class="sw cat-facility"></i>Facility</span>
+        <span><i class="sw cat-entrance"></i>Entrance</span>
+        <span><i class="sw cat-transport"></i>Stairs / Lift</span>
+        <span><i class="sw restricted-sw"></i>Restricted</span>
+      </section>
+    </aside>
+
+    <section class="stage" id="stage">
+      <svg id="svg" role="img" aria-label="Floor plan" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="10" stroke="#d93025" stroke-opacity="0.35" stroke-width="3"></line>
+          </pattern>
+        </defs>
+        <g id="viewport"></g>
+      </svg>
+
+      <nav class="floor-tabs" id="floor-tabs" aria-label="Floors"></nav>
+
+      <div class="zoom" aria-label="Zoom controls">
+        <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+        <button type="button" id="zoom-out" aria-label="Zoom out">&minus;</button>
+        <button type="button" id="zoom-reset" aria-label="Reset view" title="Reset view">&#10530;</button>
+      </div>
+
+      <div class="status" id="status" role="status"></div>
+      <div class="toast" id="toast" role="status"></div>
+    </section>
+  </main>
+
+  <script src="{% static 'navigator/js/indoor_map.js' %}"></script>
+</body>
+</html>
