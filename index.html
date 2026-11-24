@@ -1,0 +1,445 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>VVIT Hybrid Indoor Navigator</title>
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+
+        .panel {
+            position: absolute;
+            z-index: 1000;
+            top: 15px;
+            left: 15px;
+            width: 360px;
+            max-height: calc(100vh - 30px);
+            overflow-y: auto;
+            padding: 18px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px #0003;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 11px;
+            margin: 8px 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 11px;
+            margin: 5px 0;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #64748b;
+        }
+
+        button.danger {
+            background: #dc2626;
+        }
+
+        .section {
+            margin: 15px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .warn {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .indoor-indicator {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .outdoor-indicator {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .search-result,
+        .indoor-item {
+            padding: 10px;
+            margin: 6px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .search-result:hover,
+        .indoor-item:hover {
+            background: #eff6ff;
+        }
+
+        #indoor-panel {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        #indoor-map-container {
+            margin-top: 15px;
+        }
+
+        #indoor-svg-wrapper {
+            width: 100%;
+            overflow: auto;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+        }
+
+        #indoor-svg-wrapper svg {
+            display: block;
+            width: 100%;
+            min-width: 500px;
+            height: auto;
+            max-height: 650px;
+        }
+
+        .indoor-route-line {
+            fill: none;
+            stroke: #f97316;
+            stroke-width: 9;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 12 5;
+            filter: drop-shadow(0 1px 3px #475569);
+        }
+
+        .indoor-route-point {
+            stroke: white;
+            stroke-width: 3;
+        }
+
+        .route-details {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 7px;
+            background: #eff6ff;
+        }
+
+        .route-instruction {
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 9px 0;
+            gap: 8px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media(max-width: 600px) {
+            .panel {
+                width: calc(100% - 30px);
+                max-height: 60vh;
+                top: 10px;
+                left: 10px;
+            }
+
+            #map {
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<aside class="panel">
+
+    <h2>VVIT Hybrid Navigator</h2>
+
+    <p>Outdoor and Indoor Navigation</p>
+
+    <hr>
+
+    <!-- BUILDING SEARCH -->
+
+    <section class="section">
+
+        <label for="destination">
+            Search building
+        </label>
+
+        <form id="search-form">
+
+            {% csrf_token %}
+
+            <input
+                type="text"
+                id="destination"
+                placeholder="Search VVIT..."
+                minlength="3"
+                required
+            >
+
+            <button type="submit" id="search-btn">
+                Search
+            </button>
+
+        </form>
+
+        <p id="search-status" aria-live="polite"></p>
+
+        <div id="search-results"></div>
+
+        <div id="selected-place" hidden>
+
+            <h3 id="place-name"></h3>
+
+            <p id="place-address"></p>
+
+            <button
+                type="button"
+                class="danger"
+                id="clear-destination">
+                Clear destination
+            </button>
+
+        </div>
+
+    </section>
+
+    <hr>
+
+    <!-- OUTDOOR NAVIGATION -->
+
+    <section class="section">
+
+        <h3>Outdoor Navigation</h3>
+
+        <span class="badge outdoor-indicator">
+            Outdoor Mode
+        </span>
+
+        <p id="route-status">
+            Search for a building.
+        </p>
+
+        <p id="route-distance"></p>
+        <p id="route-duration"></p>
+
+    </section>
+
+    <hr>
+
+    <!-- BUILDING ENTRY -->
+
+    <section id="indoor-controls" hidden>
+
+        <h3>Building Entry</h3>
+
+        <button
+            type="button"
+            id="enter-building-btn"
+            disabled>
+            Enter Building
+        </button>
+
+    </section>
+
+    <!-- INDOOR NAVIGATION -->
+
+    <section id="indoor-panel" hidden>
+
+        <hr>
+
+        <h3>Indoor Navigation</h3>
+
+        <span class="badge indoor-indicator">
+            Indoor Mode
+        </span>
+
+        <p>
+            Building:
+            <strong id="indoor-building-name"></strong>
+        </p>
+
+        <label for="floor-select">
+            View Floor
+        </label>
+
+        <select id="floor-select">
+            <option value="">Choose floor</option>
+        </select>
+
+        <hr>
+
+        <h3>Find Your Route</h3>
+
+        <label for="indoor-start">
+            Starting Location
+        </label>
+
+        <select id="indoor-start">
+            <option value="">Choose starting location</option>
+        </select>
+
+        <label for="indoor-destination">
+            Destination Location
+        </label>
+
+        <select id="indoor-destination">
+            <option value="">Choose destination</option>
+        </select>
+
+        <button
+            type="button"
+            id="indoor-navigate-btn">
+            Navigate
+        </button>
+
+        <button
+            type="button"
+            class="secondary"
+            id="indoor-clear-route-btn">
+            Clear Route
+        </button>
+
+        <p id="indoor-route-status" aria-live="polite">
+            Select a starting point and destination.
+        </p>
+
+        <div id="indoor-route-details"></div>
+
+        <hr>
+
+        <h3>Indoor Floor Map</h3>
+
+        <div id="indoor-map-container">
+
+            <div id="indoor-svg-wrapper"></div>
+
+        </div>
+
+        <hr>
+
+        <h3>Available Locations</h3>
+
+        <div id="indoor-locations"></div>
+
+        <h3>Navigation Nodes</h3>
+
+        <div id="indoor-nodes"></div>
+
+        <p id="indoor-status" aria-live="polite">
+            Select a floor.
+        </p>
+
+    </section>
+
+    <hr>
+
+    <!-- GPS AND DATABASE -->
+
+    <section class="section">
+
+        <h3>Current Location</h3>
+
+        <div class="row">
+            <span>GPS</span>
+            <b id="gps-status" class="badge warn">
+                Waiting
+            </b>
+        </div>
+
+        <div class="row">
+            <span>Database</span>
+            <b id="db-status" class="badge warn">
+                Checking
+            </b>
+        </div>
+
+        <div class="row">
+            <span>Latitude</span>
+            <b id="lat">-</b>
+        </div>
+
+        <div class="row">
+            <span>Longitude</span>
+            <b id="lng">-</b>
+        </div>
+
+        <div class="row">
+            <span>Accuracy</span>
+            <b id="acc">-</b>
+        </div>
+
+        <label>
+            <input type="checkbox" id="follow" checked>
+            Follow my location
+        </label>
+
+        <br>
+
+        <button type="button" id="locate-btn">
+            Centre on me
+        </button>
+
+    </section>
+
+</aside>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="{% static 'navigator/js/gps.js' %}"></script>
+
+</body>
+</html>
