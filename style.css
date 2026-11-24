@@ -1,0 +1,228 @@
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+#map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Main navigation panel */
+.panel {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    width: 330px;
+    max-width: calc(100% - 24px);
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.22);
+}
+
+/* Headings */
+.panel h1 {
+    margin: 0;
+    font-size: 21px;
+    color: #1a73e8;
+}
+
+.panel h3 {
+    font-size: 15px;
+    margin: 12px 0 8px;
+}
+
+/* Subtitle */
+.sub {
+    margin: 4px 0 16px;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Search section */
+.search-section label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Input fields */
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+}
+
+input[type="text"]:focus {
+    border-color: #1a73e8;
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 11px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 8px;
+    background: #1a73e8;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1558b0;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+/* Search status */
+#search-status {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Search results */
+#search-results {
+    margin-top: 10px;
+}
+
+.result-item {
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    background: white;
+    color: #333;
+    text-align: left;
+}
+
+.result-item:hover {
+    background: #eef5ff;
+    border-color: #1a73e8;
+}
+
+.result-item strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.result-item small {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 11px;
+    color: #666;
+    overflow-wrap: anywhere;
+}
+
+/* Selected destination */
+#selected-place {
+    background: #eef5ff;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 12px;
+    overflow-wrap: anywhere;
+}
+
+#selected-place p {
+    font-size: 12px;
+    color: #555;
+}
+
+/* Clear destination button */
+#clear-destination {
+    background: #555;
+}
+
+#clear-destination:hover {
+    background: #333;
+}
+
+/* Divider */
+hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 16px 0;
+}
+
+/* Information rows */
+.row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.row b {
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+/* Status badges */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.badge.ok {
+    background: #e6f4ea;
+    color: #137333;
+}
+
+.badge.warn {
+    background: #fef7e0;
+    color: #b06000;
+}
+
+.badge.err {
+    background: #fce8e6;
+    color: #c5221f;
+}
+
+/* Follow-up information */
+.follow {
+    display: block;
+    margin: 14px 0 8px;
+    font-size: 13px;
+}
+
+/* Mobile responsive design */
+@media (max-width: 600px) {
+    .panel {
+        top: 8px;
+        left: 8px;
+        width: 300px;
+        max-width: calc(100% - 16px);
+        max-height: 75vh;
+        padding: 14px;
+    }
+
+    .panel h1 {
+        font-size: 19px;
+    }
+}
